@@ -25,7 +25,16 @@
   # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
 
   # Enable networking
-  networking.networkmanager.enable = true;
+  networking.networkmanager = {
+    enable = true;
+    plugins = [
+      pkgs.networkmanager-fortisslvpn
+    ];
+  };
+
+  #networkmanager-fortisslvpn = pkgs.networkmanager-fortisslvpn.override {
+  #  withGnome = true;
+  #};
 
   # Set your time zone.
   time.timeZone = "Europe/Berlin";
@@ -83,6 +92,16 @@
 
   virtualisation.docker.enable = true;
 
+  #nixpkgs.overlays = [(final: prev: {
+  #  ppp = prev.ppp.overrideAttrs (old: {
+  #    version = "2.4.9";
+  #    sha256 = "sha256-8+nbqRNfKPLDx+wmuKSkv+BSeG72hKJI4dNqypqeEK4=";
+  #    configureFlags = [
+  #      "--with-openssl=${prev.openssl.dev}"
+  #    ];
+  #  });
+  #})];
+
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.febra = {
     isNormalUser = true;
@@ -96,25 +115,29 @@
       skypeforlinux
       git
       slack
-      networkmanager-fortisslvpn       # VPN
-      gnome.networkmanager-fortisslvpn # VPN
-      openfortivpn
       haruna # video player
       dfeet # DBus debugger
       libreoffice-qt
+      htop
+      obsidian
+      plan9port
     ];
   };
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
+  environment.systemPackages = with pkgs; [
+    #networkmanager-fortisslvpn
+  ];
+
   # List packages installed in system profile. To search, run:
   # $ nix search wget
-  environment.systemPackages = with pkgs; [
-  #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
-    wget
-    curl
-  ];
+  
+  #environment.systemPackages = let unstable = import <nixos-unstable> { config = { allowUnfree = true; }; }; in with pkgs; [
+  #  unstable.networkmanager-fortisslvpn
+  #];
+
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
